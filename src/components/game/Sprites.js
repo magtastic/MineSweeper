@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import spriceSrc from '../assets/minesweeper_sprite.png';
+import spriceSrc from '../../assets/minesweeper_sprite.png';
 import {
   SPRITE_PADDING,
   EDGE_PADDING,
@@ -10,7 +10,7 @@ import {
   SMILEY_HEIGHT,
   TILE_WIDTH,
   TILE_HEIGHT,
-} from '../constants/Layout';
+} from '../../constants/Layout';
 
 // TODO: ADD THIS IN LAYOUT
 

@@ -21,7 +21,6 @@ export default class Cell extends Component {
 
   renderContent() {
     const {
-      id,
       isMine,
       isHitMine,
       numOfMinesAround,

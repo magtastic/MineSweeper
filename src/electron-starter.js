@@ -64,6 +64,8 @@ const LEVEL_OPTIONS = {
 };
 
 let mainWindow;
+let scoreWindow;
+let levelCreationWindow;
 
 function sendLevelData(level) {
   mainWindow.setContentSize(level.size.width, level.size.height, true);
@@ -108,6 +110,15 @@ app.on('ready', () => {
               click: () => {
                 sendLevelData(LEVEL_OPTIONS.advanced);
               }
+            },
+            {
+              type: 'separator',
+            },
+            {
+              label: 'Custom',
+              click: () => {
+                levelCreationWindow = new BrowserWindow({ width: 400, height: 200 });
+              }
             }
           ]
         },
@@ -137,9 +148,9 @@ app.on('ready', () => {
         },
         {
           label: 'Exit',
-          role: 'close',
+          role: 'quit',
           click: () => {
-            mainWindow.close();
+            app.quit();
           },
         },
       ],
