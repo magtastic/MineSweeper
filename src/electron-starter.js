@@ -1,38 +1,82 @@
-const { app, BrowserWindow, Menu } = require('electron');
+const {
+  app,
+  BrowserWindow,
+  Menu,
+} = require('electron');
+
+const BORDER_WIDTH = 2;
+const BOARD_PADDING = 5;
+const HEADER_PADDING = 3;
+const SMILEY_HEIGHT = 26;
+const TILE_WIDTH = 16;
+
+const HEADER_HEIGHT = HEADER_PADDING * 2 + SMILEY_HEIGHT + BORDER_WIDTH * 2;
+
+const VERTICAL_PADDING =
+  BORDER_WIDTH * 4 +
+  BOARD_PADDING * 2;
+
+const HORIZONTAL_PADDING =
+  VERTICAL_PADDING +
+  HEADER_HEIGHT +
+  BOARD_PADDING;
+
+const LEVEL_OPTIONS = {
+  beginner: {
+    name: 'Beginner',
+    size: {
+      width: VERTICAL_PADDING + TILE_WIDTH * 9,
+      height: HORIZONTAL_PADDING + TILE_WIDTH * 9,
+      userContentSize: true,
+    },
+    levelInfo: {
+      rowCount: 9,
+      columnCount: 9,
+      numOfMines: 10,
+    }
+  },
+  intermediate: {
+    name: 'Intermediate',
+    size: {
+      width: VERTICAL_PADDING + TILE_WIDTH * 16,
+      height: HORIZONTAL_PADDING + TILE_WIDTH * 16,
+      userContentSize: true,
+    },
+    levelInfo: {
+      rowCount: 16,
+      columnCount: 16,
+      numOfMines: 40,
+    }
+  },
+  advanced: {
+    name: 'Advanced',
+    size: {
+      width: VERTICAL_PADDING + TILE_WIDTH * 30,
+      height: HORIZONTAL_PADDING + TILE_WIDTH * 16,
+      userContentSize: true,
+    },
+    levelInfo: {
+      rowCount: 16,
+      columnCount: 30,
+      numOfMines: 99,
+    }
+  }
+};
 
 let mainWindow;
 
-const BORDERS_AND_PADDING_WIDTH = 18;
-const TILE_WIDTH = 16;
-
-function sendLevelData(data) {
-  mainWindow.webContents.send('LEVEL_DATA', data);
+function sendLevelData(level) {
+  mainWindow.setContentSize(level.size.width, level.size.height, true);
+  mainWindow.webContents.send('LEVEL_DATA', level.levelInfo);
 }
 
-/* 
-TODO: Resize window on level change!
-
-const WINDOW_SIZES = {
-  small: {
-    width: BORDERS_AND_PADDING_WIDTH + TILE_WIDTH * 9,
-    height: 225,
-  },
-  normal: {
-    width: BORDERS_AND_PADDING_WIDTH + TILE_WIDTH * 16,
-    height: 225,
-  },
-  big: {
-    width: BORDERS_AND_PADDING_WIDTH + TILE_WIDTH * 30,
-    height: 225,
-  },
-};
- */
 function createWindow() {
-  mainWindow = new BrowserWindow({ width: 600, height: 600 });
+  mainWindow = new BrowserWindow(Object.assign(LEVEL_OPTIONS.beginner.size, { useContentSize: true }));
 
   const startUrl = process.env.ELECTRON_START_URL || `${__dirname}/../build/index.html`;
 
   mainWindow.loadURL(startUrl);
+  mainWindow.setResizable(false);
 
   mainWindow.on('closed', () => {
     mainWindow = null;
@@ -48,33 +92,21 @@ app.on('ready', () => {
           label: 'New Game',
           submenu: [
             {
-              label: 'Beginner',
+              label: LEVEL_OPTIONS.beginner.name,
               click: () => {
-                sendLevelData({
-                  rowCount: 9,
-                  columnCount: 9,
-                  numOfMines: 10,
-                });
+                sendLevelData(LEVEL_OPTIONS.beginner);
               }
             },
             {
-              label: 'Intermediate',
+              label: LEVEL_OPTIONS.intermediate.name,
               click: () => {
-                sendLevelData({
-                  rowCount: 16,
-                  columnCount: 16,
-                  numOfMines: 40,
-                });
+                sendLevelData(LEVEL_OPTIONS.intermediate);
               }
             },
             {
-              label: 'Advanced',
+              label: LEVEL_OPTIONS.advanced.name,
               click: () => {
-                sendLevelData({
-                  rowCount: 16,
-                  columnCount: 30,
-                  numOfMines: 99,
-                });
+                sendLevelData(LEVEL_OPTIONS.advanced);
               }
             }
           ]
