@@ -5,6 +5,8 @@ import {
   Route
 } from 'react-router-dom';
 import Board from './components/game/Board';
+import HighScore from './components/highscore/index';
+import LevelCreation from './components/levelCreation/index';
 
 const electron = window.require('electron');
 const { ipcRenderer } = electron;
@@ -41,8 +43,9 @@ class App extends Component {
     return (
       <Router>
         <Container>
-          <Route path='/' render={routeProps => <Board {...routeProps} {...this.state} />} />
-          <Route path='/highscore' render={routeProps => <Board {...routeProps} {...this.state} />} />
+          <Route exact path='/' render={routeProps => <Board {...routeProps} {...this.state} />} />
+          <Route path='/highscore' render={routeProps => <HighScore {...routeProps} />} />
+          <Route path='/level' render={routeProps => <LevelCreation {...routeProps} />} />
         </Container>
       </Router>
     );

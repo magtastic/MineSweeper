@@ -64,24 +64,47 @@ const LEVEL_OPTIONS = {
 };
 
 let mainWindow;
-let scoreWindow;
+let highScoreWindow;
 let levelCreationWindow;
 
 function sendLevelData(level) {
-  mainWindow.setContentSize(level.size.width, level.size.height, true);
+  mainWindow.setContentSize(level.size.width, level.size.height, false);
   mainWindow.webContents.send('LEVEL_DATA', level.levelInfo);
 }
 
-function createWindow() {
+function createMainWindow() {
   mainWindow = new BrowserWindow(Object.assign(LEVEL_OPTIONS.beginner.size, { useContentSize: true }));
+  const baseUrl = process.env.ELECTRON_START_URL || `${__dirname}/../build/index.html`;
 
-  const startUrl = process.env.ELECTRON_START_URL || `${__dirname}/../build/index.html`;
-
-  mainWindow.loadURL(startUrl);
+  mainWindow.loadURL(baseUrl);
   mainWindow.setResizable(false);
 
   mainWindow.on('closed', () => {
     mainWindow = null;
+  });
+}
+
+function createHighScoreWindow() {
+  highScoreWindow = new BrowserWindow({ width: 400, height: 250 });
+  const baseUrl = process.env.ELECTRON_START_URL || `${__dirname}/../build/index.html`;
+
+  highScoreWindow.loadURL(`${baseUrl}/highscore`);
+  highScoreWindow.setResizable(false);
+
+  highScoreWindow.on('closed', () => {
+    highScoreWindow = null;
+  });
+}
+
+function createLevelCreationWindow() {
+  levelCreationWindow = new BrowserWindow({ width: 400, height: 250 });
+  const baseUrl = process.env.ELECTRON_START_URL || `${__dirname}/../build/index.html`;
+
+  levelCreationWindow.loadURL(`${baseUrl}/level`);
+  levelCreationWindow.setResizable(false);
+
+  levelCreationWindow.on('closed', () => {
+    levelCreationWindow = null;
   });
 }
 
@@ -117,7 +140,7 @@ app.on('ready', () => {
             {
               label: 'Custom',
               click: () => {
-                levelCreationWindow = new BrowserWindow({ width: 400, height: 200 });
+                createLevelCreationWindow();
               }
             }
           ]
@@ -128,7 +151,7 @@ app.on('ready', () => {
         {
           label: 'Statistics',
           click: () => {
-            scoreWindow = new BrowserWindow({ width: 400, height: 200 });
+            createHighScoreWindow();
           },
         },
         {
@@ -170,7 +193,7 @@ app.on('ready', () => {
       ],
     },
   ]));
-  createWindow();
+  createMainWindow();
 });
 
 app.on('window-all-closed', () => {
@@ -181,6 +204,6 @@ app.on('window-all-closed', () => {
 
 app.on('activate', () => {
   if (mainWindow === null) {
-    createWindow();
+    createMainWindow();
   }
 });
