@@ -7,11 +7,30 @@ import {
 import Board from './components/game/Board';
 import HighScore from './components/highscore/index';
 import LevelCreation from './components/levelCreation/index';
+import { isElectron } from './utils';
 
-const electron = window.require('electron');
-const { ipcRenderer } = electron;
+let ipcRenderer;
+if (isElectron()) {
+  const electron = window.require('electron');
+  ipcRenderer = electron.ipcRenderer;
+}
 
 const Container = styled.div``;
+
+const WebButtonsContainer = styled.div`
+  display: 'flex';
+  flex-direction: 'column';
+`;
+
+const WebButton = styled.div`
+  border: solid black 1px;
+  border-radius: 10;
+  cursor: pointer;
+`;
+
+const WebButtonText = styled.p`
+  text-align: center;
+`;
 
 class App extends Component {
   constructor(props) {
@@ -31,19 +50,65 @@ class App extends Component {
   }
 
   listenToLevelChanges() {
-    ipcRenderer.on('LEVEL_DATA', (event, data) => {
-      this.setState(state => ({
-        ...data,
-        gameId: state.gameId + 1
-      }));
-    });
+    if (isElectron()) {
+      ipcRenderer.on('LEVEL_DATA', (event, data) => {
+        this.setState(state => ({
+          ...state,
+          ...data,
+          gameId: state.gameId + 1
+        }));
+      });
+    }
   }
 
   render() {
     return (
       <Router>
         <Container>
-          <Route exact path='/' render={routeProps => <Board {...routeProps} {...this.state} />} />
+          <Route exact path='/' render={routeProps =>
+            isElectron() ? (
+              <Board {...routeProps} {...this.state} />
+            ) : (
+                <React.Fragment>
+                  <Board {...routeProps} {...this.state} />
+                  <WebButtonsContainer>
+                    <WebButton onClick={() => this.setState(state => ({
+                      ...state,
+                      gameId: state.gameId + 1,
+                      rowCount: 9,
+                      columnCount: 9,
+                      numOfMines: 10,
+                    }))}>
+                      <WebButtonText>
+                        Beginner
+                    </WebButtonText>
+                    </WebButton>
+                    <WebButton onClick={() => this.setState(state => ({
+                      ...state,
+                      gameId: state.gameId + 1,
+                      rowCount: 16,
+                      columnCount: 16,
+                      numOfMines: 40,
+                    }))}>
+                      <WebButtonText>
+                        Intermediate
+                    </WebButtonText>
+                    </WebButton>
+                    <WebButton onClick={() => this.setState(state => ({
+                      ...state,
+                      gameId: state.gameId + 1,
+                      rowCount: 16,
+                      columnCount: 30,
+                      numOfMines: 99,
+                    }))}>
+                      <WebButtonText>
+                        Advanced
+                    </WebButtonText>
+                    </WebButton>
+                  </WebButtonsContainer>
+                </React.Fragment>
+              )
+          } />
           <Route path='/highscore' render={routeProps => <HighScore {...routeProps} />} />
           <Route path='/level' render={routeProps => <LevelCreation {...routeProps} />} />
         </Container>
